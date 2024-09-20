@@ -1,1 +1,81 @@
 
+class ContaBancaria:
+    def __init__(self, titular, numero_conta, senha, saldo=0.0):
+        self.titular = titular
+        self.numero_conta = numero_conta
+        self.senha = senha
+        self.saldo = saldo
+
+    def depositar(self, valor):
+        if valor <= 0:
+            print("O valor do depósito deve ser positivo.")
+            return False
+        self.saldo += valor
+        print(f"Depósito de R${valor:.2f} realizado com sucesso.")
+        return True
+
+    def sacar(self, valor, taxa_saque=5.00):
+        if valor <= 0:
+            print("O valor do saque deve ser positivo.")
+            return False
+        if self.saldo >= valor + taxa_saque:
+            self.saldo -= (valor + taxa_saque)
+            print(f"Saque de R${valor:.2f} realizado com sucesso. Taxa de saque: R${taxa_saque:.2f}")
+            return True
+        else:
+            print("Saldo insuficiente para realizar o saque.")
+            return False
+
+    def transferir(self, valor, conta_destino):
+        if self.sacar(valor):
+            conta_destino.depositar(valor)
+            print(f"Transferência de R${valor:.2f} realizada com sucesso.")
+            return True
+        else:
+            print("Transferência não realizada.")
+            return False
+
+    def extrato(self):
+        print(f"Titular: {self.titular}\nNúmero da Conta: {self.numero_conta}\nSaldo Atual: R${self.saldo:.2f}")
+
+class Banco:
+    def __init__(self):
+        self.contas = {}
+
+    def adicionar_conta(self, conta):
+        self.contas[conta.numero_conta] = conta
+
+    def autenticar(self, numero_conta, senha):
+        if numero_conta in self.contas and self.contas[numero_conta].senha == senha:
+            return True
+        else:
+            return False
+
+    def get_conta(self, numero_conta):
+        if numero_conta in self.contas:
+            return self.contas[numero_conta]
+        else:
+            return None
+
+if __name__ == "__main__":
+    banco = Banco()
+    conta1 = ContaBancaria("João Silva", "1234-5", "senha123", 1000.0)
+    conta2 = ContaBancaria("Maria Oliveira", "6789-0", "senha456", 2500.0)
+    
+    banco.adicionar_conta(conta1)
+    banco.adicionar_conta(conta2)
+    
+    # Testando autenticação
+    if banco.autenticar("1234-5", "senha123"):
+        print("Autenticação bem-sucedida!")
+    else:
+        print("Falha na autenticação.")
+    
+    # Testando depósito, saque e transferência
+    conta1.depositar(500)
+    conta1.sacar(200)
+    conta1.transferir(100, conta2)
+    
+    # Exibindo extratos
+    conta1.extrato()
+    conta2.extrato()
